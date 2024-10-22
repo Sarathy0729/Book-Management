@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book Management System</title>
+    <link rel="stylesheet" href="style.css">
+    
+</head>
+<body>
+    <div class="container">
+        <h1 class="head">Book Management System</h1>
+        <button id="openFormBtn">Add New Book</button>
+        <div id="bookFormModal" class="modal">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <form id="bookForm">
+                    <div>
+                        <label for="title">Title:</label>
+                        <input type="text" id="title" placeholder="Enter book title" required>
+                    </div>
+                    <div>
+                        <label for="author">Author:</label>
+                        <input type="text" id="author" placeholder="Enter author name" required>
+                    </div>
+                    <div>
+                        <label for="year">Year:</label>
+                        <input type="number" id="year" placeholder="Enter year of publication" required>
+                    </div>
+                    <div>
+                        <label for="genre">Genre:</label>
+                        <input type="text" id="genre" placeholder="Enter genre" required>
+                    </div>
+                    <div>
+                        <label for="isbn">ISBN:</label>
+                        <input type="text" id="isbn" placeholder="Enter ISBN number" required>
+                    </div>
+                    <div>
+                        <label for="publisher">Publisher:</label>
+                        <input type="text" id="publisher" placeholder="Enter publisher name" required>
+                    </div>
+                    <div>
+                        <label for="pageCount">Page Count:</label>
+                        <input type="number" id="pageCount" placeholder="Enter number of pages" required>
+                    </div>
+                    <div>
+                        <label for="language">Language:</label>
+                        <input type="text" id="language" placeholder="Enter language" required>
+                    </div>
+                    <div>
+                        <label for="readStatus">Read:</label>
+                        <input type="checkbox" id="readStatus">
+                    </div>
+                    <div>
+                        <label for="rating">Rating:</label>
+                        <select id="rating">
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                        </select>
+                    </div>
+                    <button type="submit" id="submitBtn">Submit</button>
+                </form>
+            </div>
+        </div>
+    </div>
+        <h2>Book List</h2>
+        <table id="bookTable">
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Author</th>
+                    <th>Year</th>
+                    <th>Genre</th>
+                    <th>ISBN</th>
+                    <th>Publisher</th>
+                    <th>Page Count</th>
+                    <th>Language</th>
+                    <th>Read Status</th>
+                    <th>Rating</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="bookList">
+
+            </tbody>
+        </table>
+   
+    <script>
+        let books = [{
+  
+ }];
+
+ console.log(books);
+        let editingIndex = null;
+
+        // async function fetchAndDisplayBooks() {
+        //     try {
+        //         const response = await fetch('crud.json');
+        //         const data = await response.json();
+        //         console.log(data);
+
+        //         books = data.map(book => ({
+        //             ...book,
+        //             id: generateUniqueId() 
+        //         }));
+
+        //         displayBooks();
+        //     } catch (error) {
+        //         console.error('Error fetching or parsing data: ', error);
+        //     }
+        // }
+
+        function generateUniqueId() {
+            return '_' + Math.random().toString(36).substr(2, 9);
+        }
+
+        function displayBooks() {
+            const bookList = document.getElementById('bookList');
+            bookList.innerHTML = '';
+
+            books.forEach(book => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${book.Title}</td>
+                    <td>${book.Author}</td>
+                    <td>${book.Year}</td>
+                    <td>${book.genre}</td>
+                    <td>${book.ISBN}</td>
+                    <td>${book.Publisher}</td>
+                    <td>${book['Page count']}</td>
+                    <td>${book.Language}</td>
+                    <td>${book['Read Status'] ? 'Read' : 'Not Read'}</td>
+                    <td>${book.Rating}</td>
+                    <td>
+                        <button type="button" onclick="editBook('${book.id}')">Edit</button>
+                        <button type="button" onclick="deleteBook('${book.id}')">Delete</button>
+                    </td>
+                `;
+                bookList.appendChild(row);
+            });
+        }
+
+        // async function saveBooks() {
+
+        //     try {
+        //         const response = await fetch('/crud', {
+        //             method: 'post',
+        //             headers: {
+        //                 'Content-Type': 'application/json'
+        //             },
+        //             body: JSON.stringify(books)
+        //         });
+
+        //         if (!response.ok) {
+        //             throw new Error('Failed to save data');
+        //         }
+
+        //         const message = await response.text();
+        //         console.log(message);
+        //     } catch (error) {
+        //         console.error('Error saving data: ', error);
+        //     }
+        // }
+
+        // function saveBooksToLocalStorage() {
+        //     localStorage.setItem('books', JSON.stringify(books));
+        // }
+
+        // function loadBooksFromLocalStorage() {
+        //     const storedBooks = localStorage.getItem('books');
+        //     if (storedBooks) {
+        //         books = JSON.parse(storedBooks);
+        //         displayBooks();
+        //     }
+        // }
+        document.getElementById('submitBtn').addEventListener('click', function() {
+            event.preventDefault();
+
+            const title = document.getElementById('title').value;
+            const author = document.getElementById('author').value;
+            const year = document.getElementById('year').value;
+            const genre = document.getElementById('genre').value;
+            const isbn = document.getElementById('isbn').value;
+            const publisher = document.getElementById('publisher').value;
+            const pageCount = document.getElementById('pageCount').value;
+            const language = document.getElementById('language').value;
+            const readStatus = document.getElementById('readStatus').checked;
+            const rating = document.getElementById('rating').value;
+
+            const newBook = {
+                id: editingIndex !== null ? books[editingIndex].id : generateUniqueId(),
+                Title: title,
+                Author: author,
+                Year: year,
+                genre: genre,
+                ISBN: isbn,
+                Publisher: publisher,
+                'Page count': pageCount,
+                Language: language,
+                'Read Status': readStatus,
+                Rating: rating
+            };
+
+            if (editingIndex !== null) {
+                books[editingIndex] = newBook;
+                editingIndex = null;
+            } else {
+                books.push(newBook);
+            }
+
+            displayBooks();
+            // saveBooks();
+            document.getElementById('bookForm').reset();
+            closeModal();
+        });
+
+        function editBook(id) {
+            const index = books.findIndex(book => book.id === id);
+            if (index !== -1) {
+                const book = books[index];
+
+                document.getElementById('title').value = book.Title;
+                document.getElementById('author').value = book.Author;
+                document.getElementById('year').value = book.Year;
+                document.getElementById('genre').value = book.genre;
+                document.getElementById('isbn').value = book.ISBN;
+                document.getElementById('publisher').value = book.Publisher;
+                document.getElementById('pageCount').value = book['Page count'];
+                document.getElementById('language').value = book.Language;
+                document.getElementById('readStatus').checked = book['Read Status'];
+                document.getElementById('rating').value = book.Rating.toString();
+
+                editingIndex = index;
+                openModal();
+            }
+        }
+
+        function deleteBook(id) {
+            books = books.filter(book => book.id !== id);
+            // saveBooks();
+            displayBooks();
+        }
+
+        
+        const modal = document.getElementById("bookFormModal");
+        const openFormBtn = document.getElementById("openFormBtn");
+        const closeBtn = document.getElementsByClassName("close")[0];
+
+        openFormBtn.onclick = function() {
+            openModal();
+        }
+
+        closeBtn.onclick = function() {
+            closeModal();
+        }
+
+        // window.onclick = function(event) {
+        //     if (event.target == modal) {
+        //         closeModal();
+        //     }
+        // }
+
+        function openModal() {
+            modal.style.display = "block";
+        }
+
+        function closeModal() {
+            modal.style.display = "none";
+            document.getElementById('bookForm').reset();
+            editingIndex = null;
+        }
+
+        // fetchAndDisplayBooks();
+    </script>
+</body>
+</html>
